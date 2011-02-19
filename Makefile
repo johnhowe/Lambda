@@ -7,8 +7,9 @@ OBJS 	= main.o
 all: $(OBJS)
 	$(CC) $(CFLAGS) -o lambda.elf $(OBJS)
 
-install:
-	mspdebug rf2500 "prog lambda.elf"
+install: all
+	mspdebug rf2500 "erase"
+	mspdebug rf2500 "load lambda.elf"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
