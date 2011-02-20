@@ -5,7 +5,7 @@
 #include <msp430x20x2.h>
 #include "config.h"
 
-#define CLK_PIN_DELAY  ( 10 )  // Magical SPI fudge number
+#define CLK_PIN_DELAY  ( 1 )  // Magical SPI fudge number
 
 void spiBang (char byte);
 
@@ -45,6 +45,9 @@ void spiBang (char byte) {
 void display (unsigned short number) {
     char first = 0, second = 0, third = 0, fourth = 0;
     while (number > 0) {
+        if (number > 9999) {
+            number -= 10000;
+        }
         if (number > 999) {
             first++;
             number -= 1000;
@@ -58,16 +61,11 @@ void display (unsigned short number) {
             fourth++;
             number -= 1;
         }
-        //       /* A long pause */
-        //       long i = 500;
-        //       while (i != 0) {
-        //           i--;
-        //           BusyWait (CLK_PIN_DELAY);
-        //       }
-
-
     }
     spiBang (RESET);
+    spiBang (DECIMAL);
+    spiBang (DECIMAL1);
+
     spiBang (first);
     spiBang (second);
     spiBang (third);
@@ -81,7 +79,7 @@ int main() {
     P1DIR = ( RED_LED | GREEN_LED | CS_PIN | MOSI_PIN | CLK_PIN );
 
 
-    static short count = 0;
+    static short count = 8888;
     for (;;) {
         display (count++);
 
