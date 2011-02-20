@@ -1,5 +1,6 @@
 CC 	= msp430-gcc
-CFLAGS 	= -Os -Wall -g
+CFLAGS 	= -Wall -g
+
 
 OBJS 	= main.o
 
@@ -8,8 +9,7 @@ all: $(OBJS)
 	$(CC) $(CFLAGS) -o lambda.elf $(OBJS)
 
 install: all
-	mspdebug rf2500 "erase"
-	mspdebug rf2500 "load lambda.elf"
+	mspdebug rf2500 "prog lambda.elf"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<

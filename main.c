@@ -5,69 +5,62 @@
 #include <msp430x20x2.h>
 #include "config.h"
 
-#define CLK_PIN_DELAY  1000 //( TICK_HZ / BAUD )
+#define CLK_PIN_DELAY  ( 10 )  // Magical SPI fudge number
 
-void Delay (unsigned long ticks);
-void spiBang (unsigned char data);
+void spiBang (char byte);
 
-// A delay of 100000 is very roughly one second.
-void Delay (unsigned long ticks){
-    while (ticks > 0) {
-        ticks--;
-    }
-}
+static void __inline__ BusyWait(register unsigned int n) 
+{ 
+    __asm__ __volatile__ ( 
+            "1: \n" 
+            " dec      %[n] \n" 
+            " jne      1b \n" 
+            : [n] "+r"(n)); 
+} 
 
 /**
- * Currently only supporting CPOL = 0, CPHA = 0
+ * CPOL = 0, CPHA = 0
  */
-void spiBang (unsigned char data) {
-    BitSet (P1OUT, CS_PIN);             // Enable chip
-    static short bit;
+void spiBang (char byte) {
+    P1OUT |= CS_PIN | GREEN_LED;           
+    short bit;
     for (bit = 0; bit < 8; bit++) {
-        if (BitTst(data, bit)) {
-            BitSet (P1OUT, MOSI_PIN);   // Set MOSI_PIN high
-            BitSet (P1OUT, GREEN_LED);// Enable TX LED
+        if (byte & 0x80) { 
+            P1OUT |= MOSI_PIN; 
         }
         else {
-            BitSet (P1OUT, MOSI_PIN);   // Set MOSI_PIN low
-            BitClr (P1OUT, GREEN_LED);// Disable TX LED
+            P1OUT &= ~MOSI_PIN; 
         }
-        BitSet (P1OUT, CLK_PIN);        // One clock cycle
-        Delay (CLK_PIN_DELAY);
-        BitClr (P1OUT, CLK_PIN);
-        Delay (CLK_PIN_DELAY);
+        byte <<= 1;
+        BusyWait (CLK_PIN_DELAY);
+        P1OUT |= CLK_PIN;           // Slave latches on rising clock edge
+        BusyWait (CLK_PIN_DELAY);  
+        P1OUT &= ~CLK_PIN;        
     }   
-    BitClr (P1OUT, CS_PIN);             // Disable chip
+    P1OUT &= ~(CS_PIN | GREEN_LED);
 }
 
 int main() {
-    WDTCTL = WDTPW + WDTHOLD;       // Stop watchdog ticksr
+    WDTCTL = WDTPW + WDTHOLD;       // Stop watchdog timer
 
-    BitSet (P1DIR, RED_LED);
-    BitSet (P1DIR, GREEN_LED);      // Enable LED outputs
-    BitSet (P1DIR, CS_PIN);
-    BitSet (P1DIR, MOSI_PIN);
-    BitSet (P1DIR, CLK_PIN);            // Enable SPI output pins
+    P1OUT = 0;
+    P1DIR = ( RED_LED | GREEN_LED | CS_PIN | MOSI_PIN | CLK_PIN );
 
 
-    while (TRUE) {
+    while (TRUE) { 
+        spiBang (0x01);
+        spiBang (0x02);
+        spiBang (0x03);
+        spiBang (0x04);
+        P1OUT ^= RED_LED;
 
-        spiBang ('1');
-        //        spiBang ('2');
-        //        spiBang ('3');
-        //        spiBang ('4');
-        //
-        //        Delay (60000);
-        //
-        //        spiBang ('4');
-        //        spiBang ('3');
-        //        spiBang ('2');
-        //        spiBang ('1');
-
-        Delay (60000);
-        BitFlp (P1OUT, RED_LED);
+        /* A long pause */
+        long i = 30000;
+        while (i != 0) {
+            i--;
+            BusyWait (CLK_PIN_DELAY);
+        }
     }
     return 0;
 }
-
 
