@@ -42,21 +42,50 @@ void spiBang (char byte) {
     P1OUT |= CS_PIN;
 }
 
+void display (unsigned short number) {
+    char first = 0, second = 0, third = 0, fourth = 0;
+    while (number > 0) {
+        if (number > 999) {
+            first++;
+            number -= 1000;
+        } else if (number > 99) {
+            second++;
+            number -= 100;
+        } else if (number > 9) {
+            third++;
+            number -= 10;
+        } else {
+            fourth++;
+            number -= 1;
+        }
+        //       /* A long pause */
+        //       long i = 500;
+        //       while (i != 0) {
+        //           i--;
+        //           BusyWait (CLK_PIN_DELAY);
+        //       }
+
+
+    }
+    spiBang (RESET);
+    spiBang (first);
+    spiBang (second);
+    spiBang (third);
+    spiBang (fourth);
+}
+
 int main() {
     WDTCTL = WDTPW + WDTHOLD;       // Stop watchdog timer
 
     P1OUT = 0;
     P1DIR = ( RED_LED | GREEN_LED | CS_PIN | MOSI_PIN | CLK_PIN );
 
-    for (;;) {
-        spiBang (0x01);
-        spiBang (0x02);
-        spiBang (0x03);
-        spiBang (0x04);
-        P1OUT ^= RED_LED;
 
-        /* A long pause */
-        long i = 30000;
+    static short count = 0;
+    for (;;) {
+        display (count++);
+
+        long i = 1000;
         while (i != 0) {
             i--;
             BusyWait (CLK_PIN_DELAY);

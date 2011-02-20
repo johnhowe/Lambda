@@ -12,9 +12,9 @@
 #define CLK_PIN         BIT5        // Clock
 
 /* LCD Commands */
-#define DECIMAL         (0x77)
-#define BRIGHTNESS      (0x7a)
-#define RESET           (0x76)
+#define DECIMAL         (0x77)      // Follow with a decimal point command
+#define BRIGHTNESS      (0x7a)      // Follow with a value from 0 to 254. Stored into non-volatile memory
+#define RESET           (0x76)      // Clear display and set cursor to first digit
 #define DIGIT1          (0x7b)
 #define DIGIT2          (0x7c)
 #define DIGIT3          (0x7d)
