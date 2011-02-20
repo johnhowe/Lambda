@@ -46,7 +46,6 @@ int main() {
     P1OUT = 0;
     P1DIR = ( RED_LED | GREEN_LED | CS_PIN | MOSI_PIN | CLK_PIN );
 
-
     for (;;) {
         spiBang (0x01);
         spiBang (0x02);
