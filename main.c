@@ -22,7 +22,8 @@ static void __inline__ BusyWait(register unsigned int n)
  * CPOL = 0, CPHA = 0
  */
 void spiBang (char byte) {
-    P1OUT |= CS_PIN | GREEN_LED;           
+    P1OUT |= GREEN_LED;           
+    P1OUT &= ~CS_PIN;
     short bit;
     for (bit = 0; bit < 8; bit++) {
         if (byte & 0x80) { 
@@ -37,7 +38,8 @@ void spiBang (char byte) {
         BusyWait (CLK_PIN_DELAY);  
         P1OUT &= ~CLK_PIN;        
     }   
-    P1OUT &= ~(CS_PIN | GREEN_LED);
+    P1OUT &= ~(GREEN_LED);
+    P1OUT |= CS_PIN;
 }
 
 int main() {
