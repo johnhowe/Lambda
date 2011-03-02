@@ -6,6 +6,8 @@
 #define RED_LED         BIT0
 #define GREEN_LED       BIT6
 
+#define WBO2_PIN        
+
 /* SPI pins */
 #define CS_PIN          BIT3        // Chip select
 #define MOSI_PIN        BIT4        // Master out, slave in
