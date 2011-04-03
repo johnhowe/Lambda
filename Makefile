@@ -1,5 +1,5 @@
 CC 	= msp430-gcc
-CFLAGS 	= -Wall -g
+CFLAGS 	= -Wall -g 
 
 
 OBJS 	= main.o
